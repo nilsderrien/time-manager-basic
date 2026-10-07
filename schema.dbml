@@ -1,0 +1,149 @@
+Enum user_role {
+    admin
+    manager
+    employee
+}
+
+Enum late_justification_status {
+    pending
+    approved
+    rejected
+}
+
+Enum audit_log_gravity {
+    null
+    low
+    medium
+    high
+    fatal
+}
+
+// Comptes des employés, managers et administrateurs, avec leurs informations de profil et leur équipe.
+Table users {
+    id int [pk, increment]
+    first_name varchar(100) [not null]
+    last_name varchar(100) [not null]
+    email varchar(255) [not null, unique]
+    phone_number varchar(20) [not null, unique]
+    password varchar(255)
+    role user_role [not null, default: 'employee']
+    profile_picture varchar(255)
+    contract_start_date date [not null]
+    contract_end_date date [default: `null`]
+    team_id int
+    is_active boolean [not null, default: true]
+    created_at timestamptz [not null, default: `now()`]
+    updated_at timestamptz [not null, default: `now()`]
+}
+
+// Équipes de l'entreprise et manager responsable de chacune.
+Table teams {
+    id int [pk, increment]
+    name varchar(100) [not null]
+    id_manager int [not null]
+    created_at timestamptz [not null, default: `now()`]
+}
+
+// Horaires habituels de chaque employé, définis par jour de la semaine.
+Table employee_schedules {
+    id int [pk, increment]
+    user_id int [not null]
+    day_of_week int [not null, note: '1 = Monday, 7 = Sunday']
+    start_time time [not null]
+    end_time time [not null]
+
+    updated_at timestamptz [not null, default: `now()`]
+
+    indexes {
+        (user_id, day_of_week) [unique]
+    }
+}
+
+// Pointages réels d'un employé et copie des horaires prévus au moment du pointage.
+Table time_entries {
+    id int [pk, increment]
+    user_id int [not null]
+    h_in timestamptz [not null]
+    h_out timestamptz
+    scheduled_start_at timestamptz [not null]
+    scheduled_end_at timestamptz [not null]
+    date date [not null]
+    created_at timestamptz [not null, default: `now()`]
+}
+
+// Statistiques agrégées d'un employé sur une période donnée, par exemple ses heures et retards moyens.
+// à definir plus precisement plus tard en fonction des informations disponibles et pertinentes.
+Table user_stats {
+    id int [pk, increment]
+    user_id int [not null]
+    period_start date [not null]
+    period_end date [not null]
+    total_worked_minutes int [not null, default: 0]
+    average_lateness_minutes decimal(8,2) [not null, default: 0]
+    calculated_at timestamptz [not null, default: `now()`]
+
+    indexes {
+        (user_id, period_start, period_end) [unique]
+    }
+}
+
+// Justifications de retard soumises par un employé et examinées par son manager.
+Table late_justifications {
+    id int [pk, increment]
+    time_entry_id int [not null]
+    user_id int [not null]
+    manager_id int [not null]
+    reason text [not null]
+    status late_justification_status [not null, default: 'pending']
+    manager_comment text
+    reviewed_at timestamptz
+    created_at timestamptz [not null, default: `now()`]
+
+    indexes {
+        time_entry_id [unique]
+    }
+}
+
+// Jetons de renouvellement de session stockés sous forme hachée et révocables.
+Table refresh_tokens {
+    id int [pk, increment]
+    user_id int [not null]
+    token_hash varchar(255) [not null, unique]
+    expires_at timestamptz [not null]
+    revoked_at timestamptz
+    created_at timestamptz [not null, default: `now()`]
+}
+
+// Identités externes liées à un compte utilisateur, par exemple un compte Microsoft.
+Table oauth_accounts {
+    id int [pk, increment]
+    user_id int [not null]
+    provider varchar(50) [not null]
+    provider_user_id varchar(255) [not null]
+    created_at timestamptz [not null, default: `now()`]
+
+    indexes {
+        (provider, provider_user_id) [unique]
+    }
+}
+
+// Événements importants de l'application conservés pour le suivi et les audits.
+Table audit_logs {
+    id int [pk, increment]
+    user_id int
+    gravity audit_log_gravity [not null]
+    message text [not null]
+    created_at timestamptz [not null, default: `now()`]
+}
+
+Ref: teams.id_manager > users.id
+Ref: users.team_id > teams.id
+Ref: employee_schedules.user_id > users.id
+Ref: time_entries.user_id > users.id
+Ref: user_stats.user_id > users.id
+Ref: late_justifications.time_entry_id > time_entries.id
+Ref: late_justifications.user_id > users.id
+Ref: late_justifications.manager_id > users.id
+Ref: refresh_tokens.user_id > users.id
+Ref: oauth_accounts.user_id > users.id
+Ref: audit_logs.user_id > users.id
