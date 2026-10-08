@@ -1,0 +1,94 @@
+# Synchronise Jira avec GitHub, sans app à installer.
+# - Création d'une branche feat/KAN-12-...      -> ticket KAN-12 en « En cours »
+# - Ouverture d'une PR depuis cette branche      -> ticket en « En cours de revue » + lien de la PR en commentaire
+# - PR mergée                                     -> ticket en « Terminé »
+# La clé du ticket (KAN-xx) doit être dans le nom de la branche ou dans le titre de la PR.
+#
+# Secrets à créer dans GitHub (Settings > Secrets and variables > Actions) :
+#   JIRA_BASE_URL    ex. https://samirhouss.atlassian.net
+#   JIRA_USER_EMAIL  email du compte Atlassian qui a créé le token
+#   JIRA_API_TOKEN   token créé sur https://id.atlassian.com/manage-profile/security/api-tokens
+ 
+name: Jira sync
+ 
+on:
+  create:
+  pull_request:
+    types: [opened, reopened, ready_for_review, closed]
+ 
+permissions:
+  contents: read
+ 
+jobs:
+  jira:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.ref_type == 'branch'
+    env:
+      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+      JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+      EVENT: ${{ github.event_name }}
+      ACTION: ${{ github.event.action }}
+      MERGED: ${{ github.event.pull_request.merged }}
+      BRANCH: ${{ github.event.pull_request.head.ref || github.event.ref }}
+      PR_TITLE: ${{ github.event.pull_request.title }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+    steps:
+      - name: Trouver la clé du ticket
+        id: key
+        run: |
+          KEY=$(printf '%s %s' "$BRANCH" "$PR_TITLE" | grep -oE 'KAN-[0-9]+' | head -n1 || true)
+          if [ -z "$KEY" ]; then
+            echo "Aucune clé KAN-xx dans la branche « $BRANCH » : rien à faire."
+          else
+            echo "Ticket trouvé : $KEY"
+          fi
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+ 
+      - name: Choisir le nouvel état
+        id: target
+        if: steps.key.outputs.key != ''
+        run: |
+          TARGET=""
+          if [ "$EVENT" = "create" ]; then
+            TARGET="En cours"
+          elif [ "$ACTION" = "closed" ] && [ "$MERGED" = "true" ]; then
+            TARGET="Terminé"
+          elif [ "$ACTION" != "closed" ]; then
+            TARGET="En cours de revue"
+          fi
+          echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+ 
+      - name: Déplacer le ticket dans Jira
+        if: steps.target.outputs.target != ''
+        env:
+          KEY: ${{ steps.key.outputs.key }}
+          TARGET: ${{ steps.target.outputs.target }}
+        run: |
+          AUTH="$JIRA_USER_EMAIL:$JIRA_API_TOKEN"
+          ID=$(curl -fsS -u "$AUTH" -H "Accept: application/json" \
+            "$JIRA_BASE_URL/rest/api/3/issue/$KEY/transitions" \
+            | jq -r --arg t "$TARGET" '.transitions[] | select(.to.name == $t) | .id' | head -n1)
+          if [ -z "$ID" ]; then
+            echo "::warning::Pas de transition vers « $TARGET » pour $KEY"
+            exit 0
+          fi
+          curl -fsS -u "$AUTH" -X POST -H "Content-Type: application/json" \
+            -d "{\"transition\":{\"id\":\"$ID\"}}" \
+            "$JIRA_BASE_URL/rest/api/3/issue/$KEY/transitions"
+          echo "$KEY déplacé vers « $TARGET »"
+ 
+      - name: Ajouter le lien de la PR dans le ticket
+        if: steps.key.outputs.key != '' && github.event_name == 'pull_request' && github.event.action == 'opened'
+        env:
+          KEY: ${{ steps.key.outputs.key }}
+        run: |
+          BODY=$(jq -n --arg url "$PR_URL" --arg title "$PR_TITLE" '{
+            body: { type: "doc", version: 1, content: [ { type: "paragraph", content: [
+              { type: "text", text: ("Pull request ouverte : " + $title + " ") },
+              { type: "text", text: $url, marks: [ { type: "link", attrs: { href: $url } } ] }
+            ] } ] } }')
+          curl -fsS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -X POST -H "Content-Type: application/json" \
+            -d "$BODY" "$JIRA_BASE_URL/rest/api/3/issue/$KEY/comment" > /dev/null
+          echo "Lien de la PR ajouté sur $KEY"
+ 
