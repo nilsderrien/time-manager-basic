@@ -26,7 +26,6 @@ CREATE TABLE departments (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-ALTER TABLE teams ADD FOREIGN KEY (id_manager) REFERENCES users(id);
 
 CREATE TABLE teams (
     id SERIAL PRIMARY KEY,
@@ -35,6 +34,8 @@ CREATE TABLE teams (
     department_id INT NOT NULL REFERENCES departments(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE teams ADD FOREIGN KEY (id_manager) REFERENCES users(id);
 ALTER TABLE teams ADD FOREIGN KEY (department_id) REFERENCES departments(id);
 ALTER TABLE users ADD FOREIGN KEY (team_id) REFERENCES teams(id);
 
