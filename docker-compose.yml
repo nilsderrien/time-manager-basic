@@ -2,28 +2,41 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:-timemanager}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-timemanager_demo}
+      POSTGRES_DB: ${DB_NAME:-timemanager}
     volumes:
       - dbdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-timemanager} -d ${DB_NAME:-timemanager}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
     build:
       context: ./backend
       target: dev
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       DB_HOST: db
+      DB_USER: ${DB_USER:-timemanager}
+      DB_PASSWORD: ${DB_PASSWORD:-timemanager_demo}
+      DB_NAME: ${DB_NAME:-timemanager}
+      JWT_SECRET: ${JWT_SECRET:-demo_jwt_secret_a_changer}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-demo_refresh_secret_a_changer}
     volumes:
       - ./backend:/app
       - /app/node_modules
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build:

@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-timemanager}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-timemanager_demo}
+      POSTGRES_DB: ${DB_NAME:-timemanager}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-timemanager} -d ${DB_NAME:-timemanager}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backnet
+
+  backend:
+    build:
+      context: ./backend
+      target: prod
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DB_HOST: db
+      DB_USER: ${DB_USER:-timemanager}
+      DB_PASSWORD: ${DB_PASSWORD:-timemanager_demo}
+      DB_NAME: ${DB_NAME:-timemanager}
+      JWT_SECRET: ${JWT_SECRET:-demo_jwt_secret_a_changer}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-demo_refresh_secret_a_changer}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backnet
+      - frontnet
+
+  frontend:
+    build:
+      context: ./frontend
+      target: prod
+    restart: unless-stopped
+    networks:
+      - frontnet
+
+  proxy:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - frontnet
+
+volumes:
+  dbdata:
+
+networks:
+  frontnet:
+  backnet:
