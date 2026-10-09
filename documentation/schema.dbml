@@ -10,6 +10,20 @@ Enum late_justification_status {
     rejected
 }
 
+Enum leave_type {
+    annual
+    sick
+    personal
+    unpaid
+}
+
+Enum leave_request_status {
+    pending
+    approved
+    rejected
+    cancelled
+}
+
 Enum audit_log_gravity {
     null
     low
@@ -37,9 +51,17 @@ Table users {
 }
 
 // Équipes de l'entreprise et manager responsable de chacune.
+Table departments {
+    id int [pk, increment]
+    name varchar(100) [not null, unique]
+    created_at timestamptz [not null, default: `now()`]
+}
+
+// Équipes rattachées à un département et manager responsable de chacune.
 Table teams {
     id int [pk, increment]
     name varchar(100) [not null]
+    department_id int [not null]
     id_manager int [not null]
     created_at timestamptz [not null, default: `now()`]
 }
@@ -104,6 +126,41 @@ Table late_justifications {
     }
 }
 
+// Demandes de congé des employés et managers, examinées par un manager.
+Table leave_requests {
+    id int [pk, increment]
+    user_id int [not null]
+    reviewer_id int
+    leave_type leave_type [not null]
+    start_date date [not null]
+    end_date date [not null]
+    reason text
+    status leave_request_status [not null, default: 'pending']
+    reviewer_comment text
+    reviewed_at timestamptz
+    created_at timestamptz [not null, default: `now()`]
+
+    indexes {
+        (user_id, start_date, end_date)
+        (reviewer_id, status)
+    }
+}
+
+// Droits à congé annuels par utilisateur et type de congé.
+Table leave_balances {
+    id int [pk, increment]
+    user_id int [not null]
+    leave_type leave_type [not null]
+    year int [not null]
+    entitled_days decimal(6,2) [not null, default: 0]
+    used_days decimal(6,2) [not null, default: 0]
+    updated_at timestamptz [not null, default: `now()`]
+
+    indexes {
+        (user_id, leave_type, year) [unique]
+    }
+}
+
 // Jetons de renouvellement de session stockés sous forme hachée et révocables.
 Table refresh_tokens {
     id int [pk, increment]
@@ -137,6 +194,7 @@ Table audit_logs {
 }
 
 Ref: teams.id_manager > users.id
+Ref: teams.department_id > departments.id
 Ref: users.team_id > teams.id
 Ref: employee_schedules.user_id > users.id
 Ref: time_entries.user_id > users.id
@@ -144,6 +202,9 @@ Ref: user_stats.user_id > users.id
 Ref: late_justifications.time_entry_id > time_entries.id
 Ref: late_justifications.user_id > users.id
 Ref: late_justifications.manager_id > users.id
+Ref: leave_requests.user_id > users.id
+Ref: leave_requests.reviewer_id > users.id
+Ref: leave_balances.user_id > users.id
 Ref: refresh_tokens.user_id > users.id
 Ref: oauth_accounts.user_id > users.id
 Ref: audit_logs.user_id > users.id
