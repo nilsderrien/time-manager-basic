@@ -284,6 +284,10 @@ Le shéma de BDD est défini dans documentation\schema.dbml
 
 ---
 
+## bucket images
+
+Nous avons choisi **Amazon S3** pour stocker les images de profil et les futurs fichiers de l'application. L'équipe connaît déjà cette technologie, ce qui facilite son intégration. De plus, cette technologie pourra etre adaptée aux besoins futurs du projet si nécessaire.
+
 ## 12. Résumé
 
 | Élément                  | Technologie           | Raisons principales                                             |
@@ -298,3 +302,4 @@ Le shéma de BDD est défini dans documentation\schema.dbml
 | CI/CD                    | GitHub Actions        | Automatisation des tests et du déploiement                      |
 | Qualité                  | SonarQube             | Analyse automatisée de la qualité du code                       |
 | Authentification externe | OAuth 2.0 / Microsoft | Authentification via le compte Microsoft                        |
+| Stockage de fichiers     | Amazon S3             | Stockage objet évolutif, expérience de l'équipe et contrôle des accès |
