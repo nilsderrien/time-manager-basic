@@ -73,7 +73,7 @@ flowchart LR
 
     ADAPTERS["Adapters<br/>Express"]
 
-    CORE["Application + Domain<br/>Commands / Queries / Use Cases"]
+    CORE["Application + Commands / Queries / Use Cases"]
 
     INFRA["Infrastructure<br/>Repositories + Sequelize"]
 
@@ -141,7 +141,24 @@ Express nous permet ainsi de garder un framework HTTP simple tout en construisan
 
 ---
 
-## 5. Base de données — PostgreSQL
+## 5. Validation des données — Zod
+
+Nous utilisons **Zod** pour valider les données échangées par l'application.
+
+Ses principaux avantages sont :
+
+* la validation des données à l'exécution ;
+* une bonne intégration avec TypeScript ;
+* la génération des types TypeScript à partir des schémas ;
+* la possibilité de partager les schémas entre le frontend et le backend ;
+* la centralisation des contrats d'API.
+
+Les schémas partagés concernent les **contrats d'API** et non les modèles Sequelize. Sequelize reste utilisé côté backend pour la persistance des données.
+
+Zod et Sequelize sont donc complémentaires : **Zod valide les données échangées avec l'application, tandis que Sequelize gère l'accès à PostgreSQL**.
+
+
+## 6. Base de données — PostgreSQL
 
 Nous avons choisi **PostgreSQL** comme système de gestion de base de données relationnelle.
 
@@ -168,7 +185,7 @@ Nous avons notamment écarté SQLite, malgré sa simplicité de mise en place et
 
 ---
 
-## 6. ORM — Sequelize
+## 7. ORM — Sequelize
 
 Nous avons choisi **Sequelize** pour gérer l'accès à PostgreSQL depuis le backend.
 
@@ -186,7 +203,7 @@ Le choix de Sequelize est donc autant un choix technique qu'un choix pragmatique
 
 ---
 
-## 7. Reverse proxy — Nginx
+## 8. Reverse proxy — Nginx
 
 **Nginx** est utilisé comme reverse proxy devant l'application.
 
@@ -202,7 +219,7 @@ Une solution plus complexe n'apporterait pas de bénéfice significatif à ce st
 
 ---
 
-## 8. Docker
+## 9. Docker
 
 Docker est utilisé pour conteneuriser l'application, son utilisation étant imposée par les contraintes du projet.
 
@@ -251,7 +268,7 @@ flowchart TB
 
 ---
 
-## 9. CI/CD et qualité du code
+## 10. CI/CD et qualité du code
 
 Le projet utilise **GitHub Actions** pour automatiser les contrôles réalisés lors des Pull Requests et les étapes de déploiement.
 
@@ -261,13 +278,13 @@ Cette automatisation permet de détecter les régressions et problèmes de quali
 
 ---
 
-## 10. Schémas de BDD
+## 11. Schémas de BDD
 
 Le shéma de BDD est défini dans documentation\schema.dbml
 
 ---
 
-## 11. Résumé
+## 12. Résumé
 
 | Élément                  | Technologie           | Raisons principales                                             |
 | ------------------------ | --------------------- | --------------------------------------------------------------- |
