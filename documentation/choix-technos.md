@@ -276,6 +276,10 @@ Le projet utilise **GitHub Actions** pour automatiser les contrôles réalisés 
 
 Cette automatisation permet de détecter les régressions et problèmes de qualité avant l'intégration du code dans les branches principales.
 
+### Lint et formatage
+
+Nous avons choisi **Biome** afin de faciliter la coopération entre les développeurs, d'éviter les conflits de merge liés au formatage et de détecter les erreurs le plus tôt possible. ESLint n'étant pas compatible avec notre version de TypeScript, Biome permet de regrouper le lint et le formatage dans un outil rapide, simple à configurer et compatible avec notre stack.
+
 ---
 
 ## 11. Schémas de BDD
@@ -309,6 +313,7 @@ Par rapport à `swagger-autogen`, cette approche demande plus d'annotations mais
 | Conteneurisation         | Docker                | Technologie imposée par le projet                               |
 | CI/CD                    | GitHub Actions        | Automatisation des tests et du déploiement                      |
 | Qualité                  | SonarQube             | Analyse automatisée de la qualité du code                       |
+| Lint et formatage        | Biome                 | Lint, formatage homogène et détection précoce des erreurs        |
 | Authentification externe | OAuth 2.0 / Microsoft | Authentification via le compte Microsoft                        |
 | Stockage de fichiers     | Amazon S3             | Stockage objet évolutif, expérience de l'équipe et contrôle des accès |
 | Documentation API        | swagger-jsdoc + swagger-ui-express | Intégration Express légère et documentation versionnée avec les routes |

@@ -8,10 +8,11 @@ services:
       POSTGRES_DB: ${DB_NAME:-timemanager}
     volumes:
       - dbdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-timemanager} -d ${DB_NAME:-timemanager}"]
-      interval: 5s
-      timeout: 5s
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
       retries: 10
     networks:
       - backnet
@@ -26,11 +27,15 @@ services:
         required: false
     environment:
       DB_HOST: db
+      DB_PORT: 5432
       DB_USER: ${DB_USER:-timemanager}
       DB_PASSWORD: ${DB_PASSWORD:-timemanager_demo}
       DB_NAME: ${DB_NAME:-timemanager}
       JWT_SECRET: ${JWT_SECRET:-demo_jwt_secret_a_changer}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-demo_refresh_secret_a_changer}
+      MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID:-}
+      MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET:-}
+      MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID:-}
     depends_on:
       db:
         condition: service_healthy
