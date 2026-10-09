@@ -11,7 +11,11 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
-    "lint": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "npm run typecheck && biome check ."
   },
   "keywords": [],
   "author": "",
@@ -26,6 +30,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.4",
     "@types/swagger-jsdoc": "^6.0.4",
