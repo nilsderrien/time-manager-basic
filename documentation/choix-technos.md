@@ -288,7 +288,15 @@ Le shéma de BDD est défini dans documentation\schema.dbml
 
 Nous avons choisi **Amazon S3** pour stocker les images de profil et les futurs fichiers de l'application. L'équipe connaît déjà cette technologie, ce qui facilite son intégration. De plus, cette technologie pourra etre adaptée aux besoins futurs du projet si nécessaire.
 
-## 12. Résumé
+## 12. Documentation API — `swagger-jsdoc` + `swagger-ui-express`
+
+Nous avons choisi `swagger-jsdoc` avec `swagger-ui-express` pour exposer la documentation OpenAPI sur `/api/docs`.
+
+Cette solution est adaptée à Express, légère à intégrer et permet à chaque développeur de documenter ses routes directement dans le code. La documentation évolue ainsi avec les routes, sans imposer de réorganiser l'architecture existante.
+
+Par rapport à `swagger-autogen`, cette approche demande plus d'annotations mais produit une documentation plus maîtrisée et fiable. Par rapport à `tsoa`, elle est moins invasive et mieux adaptée à notre backend Express actuel.
+
+## 13. Résumé
 
 | Élément                  | Technologie           | Raisons principales                                             |
 | ------------------------ | --------------------- | --------------------------------------------------------------- |
@@ -303,3 +311,4 @@ Nous avons choisi **Amazon S3** pour stocker les images de profil et les futurs 
 | Qualité                  | SonarQube             | Analyse automatisée de la qualité du code                       |
 | Authentification externe | OAuth 2.0 / Microsoft | Authentification via le compte Microsoft                        |
 | Stockage de fichiers     | Amazon S3             | Stockage objet évolutif, expérience de l'équipe et contrôle des accès |
+| Documentation API        | swagger-jsdoc + swagger-ui-express | Intégration Express légère et documentation versionnée avec les routes |
