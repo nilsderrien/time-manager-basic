@@ -1,5 +1,8 @@
 import express from 'express';
 import { checkDatabase } from './db/pool.js';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
+import { healthController } from './controllers/health.controller.js';
 import { loginController } from './controllers/login.controller.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { notFound } from './middlewares/not-found.js';
@@ -12,10 +15,7 @@ export function createApp(databaseCheck: DatabaseCheck = checkDatabase) {
   app.disable('x-powered-by');
   app.use(express.json({ limit: '1mb' }));
 
-  app.get('/api/health', (_request, response) => {
-    response.json({ status: 'ok' });
-  });
-
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.get('/api/health/db', async (_request, response) => {
     try {
       await databaseCheck();
@@ -26,6 +26,8 @@ export function createApp(databaseCheck: DatabaseCheck = checkDatabase) {
     }
   });
 
+  // TODO: Add an automated check that every exposed route is documented.
+  app.use(healthController);
   app.use(loginController);
 
   app.use(notFound);
