@@ -35,8 +35,9 @@ services:
       MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET:-}
       MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID:-}
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./backend/src:/app/src
+      - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/biome.json:/app/biome.json
     ports:
       - "3000:3000"
     depends_on:
@@ -50,8 +51,10 @@ services:
     environment:
       API_URL: ${API_URL:-http://backend:3000}
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js
+      - ./frontend/package.json:/app/package.json
     ports:
       - "5173:5173"
     depends_on:
