@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:-timemanager}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-timemanager_demo}
+      POSTGRES_DB: ${DB_NAME:-timemanager}
     volumes:
       - dbdata:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -20,21 +20,24 @@ services:
     build:
       context: ./backend
       target: dev
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       DB_HOST: db
       DB_PORT: 5432
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID}
-      MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET}
-      MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID}
+      DB_USER: ${DB_USER:-timemanager}
+      DB_PASSWORD: ${DB_PASSWORD:-timemanager_demo}
+      DB_NAME: ${DB_NAME:-timemanager}
+      JWT_SECRET: ${JWT_SECRET:-demo_jwt_secret_a_changer}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-demo_refresh_secret_a_changer}
+      MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID:-}
+      MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET:-}
+      MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID:-}
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./backend/src:/app/src
+      - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/biome.json:/app/biome.json
     ports:
       - "3000:3000"
     depends_on:
@@ -46,10 +49,12 @@ services:
       context: ./frontend
       target: dev
     environment:
-      API_URL: ${API_URL}
+      API_URL: ${API_URL:-http://backend:3000}
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js
+      - ./frontend/package.json:/app/package.json
     ports:
       - "5173:5173"
     depends_on:
