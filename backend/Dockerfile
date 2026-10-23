@@ -4,18 +4,20 @@ COPY package*.json ./
 
 FROM base AS dev
 RUN npm install
-COPY . .
+COPY --chown=node:node . .
 EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
 FROM base AS build
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM base AS prod
+FROM node:22-alpine AS prod
+WORKDIR /app
 ENV NODE_ENV=production
-RUN npm install --omit=dev
+COPY package*.json ./
+RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 EXPOSE 3000
 CMD ["npm", "start"]

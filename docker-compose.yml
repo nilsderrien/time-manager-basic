@@ -27,7 +27,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
-      NODE_ENV: ${NODE_ENV:-production}
+      NODE_ENV: ${NODE_ENV}
       SEED_FILE_PATH: /app/database/populate.sql
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
@@ -35,9 +35,10 @@ services:
       MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET}
       MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID}
     volumes:
-      - ./backend:/app
+      - ./backend/src:/app/src
+      - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/biome.json:/app/biome.json
       - ./database/populate.sql:/app/database/populate.sql:ro
-      - /app/node_modules
     ports:
       - "3000:3000"
     depends_on:
@@ -51,8 +52,10 @@ services:
     environment:
       API_URL: ${API_URL}
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js
+      - ./frontend/package.json:/app/package.json
     ports:
       - "5173:5173"
     depends_on:
