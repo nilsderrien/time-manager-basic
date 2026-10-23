@@ -27,6 +27,8 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      NODE_ENV: ${NODE_ENV:-production}
+      SEED_FILE_PATH: /app/database/populate.sql
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID}
@@ -34,6 +36,7 @@ services:
       MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID}
     volumes:
       - ./backend:/app
+      - ./database/populate.sql:/app/database/populate.sql:ro
       - /app/node_modules
     ports:
       - "3000:3000"
