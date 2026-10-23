@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { createApp } from './app.js';
+import { seedDevelopmentDatabase } from './db/development-seed.js';
 
 const port = Number(process.env.PORT ?? 3000);
 
@@ -8,9 +9,16 @@ if (!Number.isInteger(port) || port < 1 || port > 65_535) {
 }
 
 const app = createApp();
-const server = app.listen(port, () => {
-  console.info(`Backend listening on port ${port}`);
-});
+
+const server = await startServer();
+
+async function startServer() {
+  await seedDevelopmentDatabase();
+
+  return app.listen(port, () => {
+    console.info(`Backend listening on port ${port}`);
+  });
+}
 
 server.on('error', (error: Error) => {
   console.error('Unable to start the HTTP server', error);

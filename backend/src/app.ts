@@ -4,6 +4,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 import { healthController } from './controllers/health.controller.js';
 import { loginController } from './controllers/login.controller.js';
+import { usersController } from './controllers/users.controller.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { notFound } from './middlewares/not-found.js';
 
@@ -40,6 +41,7 @@ export function createApp(databaseCheck: DatabaseCheck = checkDatabase) {
   // TODO: Add an automated check that every exposed route is documented.
   app.use(healthController);
   app.use(loginController);
+  app.use(usersController);
 
   app.use(notFound);
 
