@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   sync:
+    if: github.repository == 'nilsderrien/time-manager-basic'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (full history)
