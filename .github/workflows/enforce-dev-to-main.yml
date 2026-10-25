@@ -1,0 +1,20 @@
+name: Enforce dev to main
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-source-branch:
+    if: github.repository == 'nilsderrien/time-manager-basic'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Only dev can be merged into main
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [ "$HEAD_REF" != "dev" ]; then
+            echo "::error::Seule la branche dev peut être mergée dans main (reçu : $HEAD_REF)"
+            exit 1
+          fi

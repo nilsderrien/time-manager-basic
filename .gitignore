@@ -1,1 +1,4 @@
 schema.dbdiagram
+plans/*
+.env
+secrets/
