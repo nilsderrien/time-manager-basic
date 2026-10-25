@@ -1,0 +1,151 @@
+name: Backend CI
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          echo "::group::npm ci (backend)"
+          npm ci
+          echo "::endgroup::"
+
+      - name: Run backend typecheck and Biome check
+        working-directory: backend
+        run: |
+          echo "::group::npm run check (backend)"
+          npm run check
+          echo "::endgroup::"
+
+  test-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      COVERAGE_THRESHOLD: '80'
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: ci
+      DB_PASSWORD: ci
+      DB_NAME: ci
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Wait for PostgreSQL to become ready
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -U ci -d ci; then
+              break
+            fi
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          pg_isready -h localhost -U ci -d ci
+
+      - name: Initialize PostgreSQL schema
+        env:
+          PGPASSWORD: ci
+        run: |
+          echo "::group::Initialize PostgreSQL schema"
+          psql -h localhost -U ci -d ci -f "$GITHUB_WORKSPACE/database/init.sql"
+          echo "::endgroup::"
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          echo "::group::npm ci (backend tests)"
+          npm ci
+          echo "::endgroup::"
+
+      - name: Run backend tests with coverage
+        working-directory: backend
+        run: |
+          mkdir -p coverage
+          echo "::group::Backend tests and native coverage"
+          test_result=0
+          node --import tsx \
+            --experimental-test-coverage \
+            --test-coverage-exclude='tests/**/*.test.ts' \
+            --test-reporter=spec \
+            --test-reporter=lcov \
+            --test-reporter-destination=stdout \
+            --test-reporter-destination=coverage/lcov.info \
+            --test 'tests/**/*.test.ts' || test_result=$?
+          echo "::endgroup::"
+          node scripts/report-coverage.js coverage/lcov.info "$test_result"
+
+      - name: Upload backend LCOV report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-lcov
+          path: backend/coverage/lcov.info
+          if-no-files-found: warn
+          retention-days: 14
+
+  build-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          echo "::group::npm ci (backend build)"
+          npm ci
+          echo "::endgroup::"
+
+      - name: Build backend
+        working-directory: backend
+        run: |
+          echo "::group::npm run build (backend)"
+          npm run build
+          echo "::endgroup::"
