@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { pool } from '../db/pool.js';
+import { Router } from "express";
+import { pool } from "../db/pool.js";
 
 export const usersController = Router();
 
@@ -27,13 +27,13 @@ export const usersController = Router();
  *                   role:
  *                     type: string
  */
-usersController.get('/api/users', async (_request, response, next) => {
-  try {
-    const { rows } = await pool.query(
-      'SELECT id, first_name, last_name, role FROM users WHERE is_active ORDER BY id',
-    );
-    response.json(rows);
-  } catch (error) {
-    next(error);
-  }
+usersController.get("/api/users", async (_request, response, next) => {
+	try {
+		const { rows } = await pool.query(
+			"SELECT id, first_name, last_name, role FROM users WHERE is_active ORDER BY id",
+		);
+		response.json(rows);
+	} catch (error) {
+		next(error);
+	}
 });
