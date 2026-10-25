@@ -1,11 +1,11 @@
-import 'dotenv/config';
-import { createApp } from './app.js';
-import { seedDevelopmentDatabase } from './db/development-seed.js';
+import "dotenv/config";
+import { createApp } from "./app.js";
+import { seedDevelopmentDatabase } from "./db/development-seed.js";
 
 const port = Number(process.env.PORT ?? 3000);
 
 if (!Number.isInteger(port) || port < 1 || port > 65_535) {
-  throw new Error('PORT must be an integer between 1 and 65535');
+	throw new Error("PORT must be an integer between 1 and 65535");
 }
 
 const app = createApp();
@@ -13,31 +13,31 @@ const app = createApp();
 const server = await startServer();
 
 async function startServer() {
-  await seedDevelopmentDatabase();
+	await seedDevelopmentDatabase();
 
-  return app.listen(port, () => {
-    console.info(`Backend listening on port ${port}`);
-  });
+	return app.listen(port, () => {
+		console.info(`Backend listening on port ${port}`);
+	});
 }
 
-server.on('error', (error: Error) => {
-  console.error('Unable to start the HTTP server', error);
-  process.exitCode = 1;
+server.on("error", (error: Error) => {
+	console.error("Unable to start the HTTP server", error);
+	process.exitCode = 1;
 });
 
 function shutdown(signal: string): void {
-  console.info(`${signal} received, shutting down`);
+	console.info(`${signal} received, shutting down`);
 
-  server.close((error?: Error) => {
-    if (error) {
-      console.error('Unable to close the HTTP server', error);
-      process.exitCode = 1;
-      return;
-    }
+	server.close((error?: Error) => {
+		if (error) {
+			console.error("Unable to close the HTTP server", error);
+			process.exitCode = 1;
+			return;
+		}
 
-    process.exit(0);
-  });
+		process.exit(0);
+	});
 }
 
-process.once('SIGTERM', () => shutdown('SIGTERM'));
-process.once('SIGINT', () => shutdown('SIGINT'));
+process.once("SIGTERM", () => shutdown("SIGTERM"));
+process.once("SIGINT", () => shutdown("SIGINT"));

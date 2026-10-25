@@ -1,7 +1,7 @@
-const TOKEN = "token";
-const ROLE = "role";
+const TOKEN = 'token';
+const ROLE = 'role';
 
-export type Role = "employee" | "manager";
+export type Role = 'employee' | 'manager';
 
 export const getToken = () => localStorage.getItem(TOKEN);
 export const getRole = () => localStorage.getItem(ROLE) as Role | null;

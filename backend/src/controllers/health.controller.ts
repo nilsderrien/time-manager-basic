@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 
 export const healthController = Router();
 
@@ -21,6 +21,6 @@ export const healthController = Router();
  *                   type: string
  *                   example: ok
  */
-healthController.get('/api/health', (_request, response) => {
-  response.json({ status: 'ok' });
+healthController.get("/api/health", (_request, response) => {
+	response.json({ status: "ok" });
 });

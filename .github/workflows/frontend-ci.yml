@@ -1,0 +1,64 @@
+name: Frontend CI
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: |
+          echo "::group::npm ci (frontend)"
+          npm ci
+          echo "::endgroup::"
+
+      - name: Run frontend lint
+        working-directory: frontend
+        run: |
+          echo "::group::npm run lint (frontend)"
+          npm run lint
+          echo "::endgroup::"
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: |
+          echo "::group::npm ci (frontend build)"
+          npm ci
+          echo "::endgroup::"
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          echo "::group::npm run build (frontend)"
+          npm run build
+          echo "::endgroup::"
