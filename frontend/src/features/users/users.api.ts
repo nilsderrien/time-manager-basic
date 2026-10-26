@@ -1,4 +1,7 @@
-import { UserListSchema, type UserSummary } from '@time-manager/contracts/users';
+import {
+  UserListSchema,
+  type UserSummary,
+} from '@time-manager/contracts/users';
 import { api } from '../../lib/api';
 
 export async function listUsers(): Promise<UserSummary[]> {

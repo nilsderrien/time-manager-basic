@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import type { UserSummary } from '@time-manager/contracts/users';
+import { useEffect, useState } from 'react';
 import { listUsers } from './users.api';
 
 export default function UsersPage() {

@@ -28,6 +28,9 @@ jobs:
           npm ci
           echo "::endgroup::"
 
+      - name: Build shared contracts
+        run: npm run build --prefix shared/contracts
+
       - name: Run backend typecheck and Biome check
         working-directory: backend
         run: |
@@ -95,6 +98,9 @@ jobs:
           echo "::group::npm ci (backend tests)"
           npm ci
           echo "::endgroup::"
+
+      - name: Build shared contracts
+        run: npm run build --prefix shared/contracts
 
       - name: Run backend tests with coverage
         working-directory: backend
