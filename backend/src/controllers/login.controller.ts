@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 
 export const loginController = Router();
 
@@ -16,7 +16,6 @@ export const loginController = Router();
  *               type: string
  *               example: helloworld
  */
-loginController.get('/login', (_request, response) => {
-  response.send('helloworld');
-  
+loginController.get("/login", (_request, response) => {
+	response.send("helloworld");
 });

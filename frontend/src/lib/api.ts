@@ -1,8 +1,8 @@
-import axios from "axios";
-import { getToken, clearSession } from "../features/auth/session";
+import axios from 'axios';
+import { clearSession, getToken } from '../features/auth/session';
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "/api",
+  baseURL: import.meta.env.VITE_API_URL ?? '/api',
 });
 
 // Ajoute le token à chaque requête
@@ -18,8 +18,8 @@ api.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401) {
       clearSession();
-      window.location.assign("/login");
+      window.location.assign('/login');
     }
     return Promise.reject(err);
-  }
+  },
 );

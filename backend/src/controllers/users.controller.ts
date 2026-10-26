@@ -30,15 +30,15 @@ export const usersController = Router();
  *                   role:
  *                     type: string
  */
-usersController.get('/api/users', async (_request, response, next) => {
-  try {
-    const { rows } = await pool.query(
-      'SELECT id, first_name, last_name, role FROM users WHERE is_active ORDER BY id',
-    );
-    response.json(rows);
-  } catch (error) {
-    next(error);
-  }
+usersController.get("/api/users", async (_request, response, next) => {
+	try {
+		const { rows } = await pool.query(
+			"SELECT id, first_name, last_name, role FROM users WHERE is_active ORDER BY id",
+		);
+		response.json(rows);
+	} catch (error) {
+		next(error);
+	}
 });
 
 usersController.post('/api/users', validateBody(CreateUserSchema), (_request, _response, next) => {
