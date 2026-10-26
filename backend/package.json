@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test": "tsx --test \"tests/**/*.test.ts\"",
-    "build": "tsc -p tsconfig.json",
+    "pretest": "npm run build --prefix ../shared/contracts",
+    "build": "npm run build --prefix ../shared/contracts && tsc -p tsconfig.json",
+    "predev": "npm run build --prefix ../shared/contracts",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -23,6 +25,7 @@
   "type": "module",
   "private": "true",
   "dependencies": {
+    "@time-manager/contracts": "*",
     "dotenv": "^18.0.6",
     "express": "^5.2.1",
     "pg": "^8.23.1",

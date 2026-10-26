@@ -1,5 +1,8 @@
 import { Router } from 'express';
+import { CreateUserSchema } from '@time-manager/contracts';
 import { pool } from '../db/pool.js';
+import { AppError } from '../errors/app-error.js';
+import { validateBody } from '../middlewares/validate-body.js';
 
 export const usersController = Router();
 
@@ -36,4 +39,8 @@ usersController.get('/api/users', async (_request, response, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+usersController.post('/api/users', validateBody(CreateUserSchema), (_request, _response, next) => {
+  next(new AppError('La création des utilisateurs n’est pas encore implémentée', 501, 'NOT_IMPLEMENTED'));
 });

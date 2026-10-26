@@ -19,7 +19,8 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
       target: prod
     restart: unless-stopped
     env_file:
@@ -45,7 +46,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
       target: prod
     restart: unless-stopped
     networks:
