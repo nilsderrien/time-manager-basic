@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CreateUserSchema } from '@time-manager/contracts';
+import { CreateUserSchema } from '@time-manager/contracts/users';
 import { pool } from '../db/pool.js';
 import { AppError } from '../errors/app-error.js';
 import { validateBody } from '../middlewares/validate-body.js';

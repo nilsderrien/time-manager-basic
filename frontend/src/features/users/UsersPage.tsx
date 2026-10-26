@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { UserListSchema, type UserSummary } from '@time-manager/contracts';
-import { api } from '../../lib/api';
+import type { UserSummary } from '@time-manager/contracts/users';
+import { listUsers } from './users.api';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserSummary[]>([]);
@@ -9,11 +9,9 @@ export default function UsersPage() {
   useEffect(() => {
     let active = true;
 
-    api
-      .get('/users')
-      .then(({ data }) => {
-        const parsedUsers = UserListSchema.parse(data);
-        if (active) setUsers(parsedUsers);
+    listUsers()
+      .then((loadedUsers) => {
+        if (active) setUsers(loadedUsers);
       })
       .catch(() => {
         if (active) setError('Impossible de charger les utilisateurs.');

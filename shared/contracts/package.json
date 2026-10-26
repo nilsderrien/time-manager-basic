@@ -9,6 +9,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth.schema.d.ts",
+      "import": "./dist/auth.schema.js"
+    },
+    "./users": {
+      "types": "./dist/users.schema.d.ts",
+      "import": "./dist/users.schema.js"
     }
   },
   "scripts": {
