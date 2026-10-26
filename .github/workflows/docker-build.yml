@@ -20,7 +20,7 @@ jobs:
       - name: Build backend image without publishing
         uses: docker/build-push-action@v6
         with:
-          context: ./backend
+          context: .
           file: ./backend/Dockerfile
           tags: time-manager-backend:ci
           push: false
@@ -30,7 +30,7 @@ jobs:
       - name: Build frontend image without publishing
         uses: docker/build-push-action@v6
         with:
-          context: ./frontend
+          context: .
           file: ./frontend/Dockerfile
           tags: time-manager-frontend:ci
           push: false
