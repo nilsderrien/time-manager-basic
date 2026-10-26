@@ -8,9 +8,12 @@
 	},
 	"scripts": {
 		"test": "tsx --test \"tests/**/*.test.ts\"",
-		"build": "tsc -p tsconfig.json",
+		"pretest": "npm run build --prefix ../shared/contracts",
+		"build": "npm run build --prefix ../shared/contracts && tsc -p tsconfig.json",
+		"predev": "npm run build --prefix ../shared/contracts",
 		"dev": "tsx watch src/server.ts",
 		"start": "node dist/server.js",
+		"pretypecheck": "npm run build --prefix ../shared/contracts",
 		"typecheck": "tsc --noEmit -p tsconfig.json",
 		"lint": "biome lint .",
 		"format": "biome format --write .",
@@ -23,6 +26,7 @@
 	"type": "module",
 	"private": "true",
 	"dependencies": {
+		"@time-manager/contracts": "*",
 		"dotenv": "^18.0.6",
 		"express": "^5.2.1",
 		"pg": "^8.23.1",
@@ -31,7 +35,7 @@
 		"zod": "^4.6.5"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.6.3",
+		"@biomejs/biome": "^2.5.15",
 		"@types/express": "^5.0.6",
 		"@types/node": "^26.6.4",
 		"@types/pg": "^8.23.1",

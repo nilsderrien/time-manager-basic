@@ -1,0 +1,14 @@
+{
+  "name": "time-manager",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared/contracts"
+  ],
+  "scripts": {
+    "build:contracts": "npm run build --workspace @time-manager/contracts",
+    "build": "npm run build:contracts && npm run build --workspace time-manager-backend && npm run build --workspace time-manager-frontend",
+    "test": "npm test --workspace time-manager-backend"
+  }
+}

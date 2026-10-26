@@ -18,7 +18,8 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
       target: dev
     env_file: .env
     environment:
@@ -35,9 +36,11 @@ services:
       MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET}
       MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID}
     volumes:
-      - ./backend/src:/app/src
-      - ./backend/tsconfig.json:/app/tsconfig.json
-      - ./backend/biome.json:/app/biome.json
+      - ./backend/src:/app/backend/src
+      - ./backend/tsconfig.json:/app/backend/tsconfig.json
+      - ./backend/biome.json:/app/backend/biome.json
+      - ./shared/contracts/src:/app/shared/contracts/src
+      - ./shared/contracts/tsconfig.json:/app/shared/contracts/tsconfig.json
       - ./database/populate.sql:/app/database/populate.sql:ro
     ports:
       - "3000:3000"
@@ -47,15 +50,17 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
       target: dev
     environment:
       API_URL: ${API_URL}
     volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/index.html:/app/index.html
-      - ./frontend/vite.config.js:/app/vite.config.js
-      - ./frontend/package.json:/app/package.json
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/index.html:/app/frontend/index.html
+      - ./frontend/vite.config.js:/app/frontend/vite.config.js
+      - ./shared/contracts/src:/app/shared/contracts/src
+      - ./shared/contracts/tsconfig.json:/app/shared/contracts/tsconfig.json
     ports:
       - "5173:5173"
     depends_on:

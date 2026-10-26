@@ -2,3 +2,5 @@ schema.dbdiagram
 plans/*
 .env
 secrets/
+**/dist/
+node_modules/
